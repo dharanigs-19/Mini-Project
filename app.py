@@ -14,6 +14,70 @@ def load_data(query):
     conn.close()
     return df
 
+st.markdown(
+    """
+    <style>
+    /* Main app background */
+    .stApp {
+        background-color: #334155;  /* bright slate */
+        color: #ffffff;
+    }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        background-color: #1e293b;
+    }
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] * {
+        color: #e5e7eb !important;
+    }
+
+    /* Titles */
+    h1, h2, h3, h4 {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+
+    /* Metric cards */
+    div[data-testid="metric-container"] {
+        background-color: #0f172a;
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Metric labels */
+    div[data-testid="metric-container"] label {
+        color: #c7d2fe !important;
+        font-size: 0.9rem;
+    }
+
+    /* Metric values */
+    div[data-testid="metric-container"] div {
+        color: #ffffff !important;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    /* Dataframe container */
+    div[data-testid="stDataFrame"] {
+        background-color: white;
+        padding: 15px;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+    }
+
+    /* Radio buttons */
+    .stRadio label {
+        color: #e5e7eb !important;
+        font-size: 0.95rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 st.sidebar.title("✈️ Flight Dashboard")
 page = st.sidebar.radio(
@@ -29,7 +93,7 @@ page = st.sidebar.radio(
 
 if page == "Overview":
     st.title("📊 Flight Operations Overview")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3,gap="large")
     total_airports = load_data("select count(*) as Total_Airports from airport")["Total_Airports"]
     total_flights = load_data("select count(*) as Total_Flights from flight")["Total_Flights"]
     avg_delay = load_data("select round(avg(avg_delay_min), 2) as Average_Delay from delay")["Average_Delay"]
@@ -88,7 +152,7 @@ elif page == "Delay Analysis":
     delay_data=load_data("""select airport_iata, avg(avg_delay_min) as Average_Delay,
                 (sum(delayed_flights) * 100.0 / sum(total_flights)) as Delay_Percentage from delay group by airport_iata""")
    
-    num_airports = st.slider("Select number of top airports to display", 5, 190, 10)
+    num_airports = st.slider("Select number of top airports to display", 10, 190, 10)
     avg_delay_data = delay_data.nlargest(num_airports, "Average_Delay")
     pct_delay_data = delay_data.nlargest(num_airports, "Delay_Percentage")
     col1, col2 = st.columns(2)
@@ -114,6 +178,14 @@ elif page == "Delay Analysis":
             ax=ax,
         )
         st.pyplot(fig)
+    sns.set_style("darkgrid")
+    plt.rcParams["axes.facecolor"] = "#111827"
+    plt.rcParams["figure.facecolor"] = "#111827"
+    plt.rcParams["text.color"] = "white"
+    plt.rcParams["axes.labelcolor"] = "white"
+    plt.rcParams["xtick.color"] = "white"
+    plt.rcParams["ytick.color"] = "white"
+
 
 elif page == "Route Leaderboards":
     st.title("🏆 Route Leaderboards")
